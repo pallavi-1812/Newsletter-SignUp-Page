@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const https = require("https");
@@ -5,19 +6,19 @@ const https = require("https");
 const app = express();
 
 app.use(express.static("public"));
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get("/",function(req,res){
+app.get("/", function (req, res) {
     res.sendFile(`${__dirname}/signup.html`);
 })
 
-app.post("/",function(req,res){
-    const firstName = req.body.fName; 
+app.post("/", function (req, res) {
+    const firstName = req.body.fName;
     const lastName = req.body.lName;
     const email = req.body.email;
 
     const data = {
-        members:[
+        members: [
             {
                 email_address: email,
                 status: "subscribed",
@@ -31,20 +32,20 @@ app.post("/",function(req,res){
 
     const JSONdata = JSON.stringify(data);
 
-    const url = 'https://us7.api.mailchimp.com/3.0/lists/17916a0417';
+    const url = `${process.env.AUTH_URL}`;
 
     const options = {
         method: 'POST',
-        auth: 'pallavi1812:eac2913628af93e8ca3c8c4bff151864-us7'
+        auth: `${process.env.AUTH}`
     }
 
-    const request = https.request(url, options, function(response){
+    const request = https.request(url, options, function (response) {
         if (response.statusCode === 200) {
             res.sendFile(`${__dirname}/success.html`);
         } else {
             res.sendFile(`${__dirname}/failure.html`);
         }
-        response.on("data",function(data){
+        response.on("data", function (data) {
             console.log(JSON.parse(data));
         })
     })
@@ -54,10 +55,10 @@ app.post("/",function(req,res){
 
 })
 
-app.post("/failure",function(req,res){
+app.post("/failure", function (req, res) {
     res.redirect("/");
 })
 
-app.listen( process.env.PORT || 3000,function(){
+app.listen(process.env.PORT || 3000, function () {
     console.log("server started running");
 });
